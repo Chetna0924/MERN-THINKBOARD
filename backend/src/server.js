@@ -1,24 +1,23 @@
-import express from "express";
-import connectDB from "./config/db.js";
+import dotenv from "dotenv";
+dotenv.config();
 
+import express from "express";
+import cors from "cors";
+import connectDB from "./config/db.js";
+import notesroute from "./routes/notesroute.js";
 
 const app = express();
-const PORT= process.env.PORT||5001
-import notesroute from "./routes/notesroute.js"
-import rateLimiter from "./middleware/rateLimiter.js";
-//middleware
+const PORT = process.env.PORT || 5001;
+
+// middleware
+app.use(cors());
 app.use(express.json());
 
+// routes
+app.use("/api/notes", notesroute);
 
-app.use(rateLimiter);
-app.use("/api/notes",notesroute);
-connectDB().then(()=>{
+connectDB();
 
-app.listen(PORT, ()=>{
-    console.log("server startred on PORT:",PORT);
-
+app.listen(PORT, () => {
+  console.log("Server started on PORT:", PORT);
 });
-});
-
-
-//mongodb+srv://chetnasharma0924:82ncEyDK5tj4o8co@cluster0.zhnhth6.mongodb.net/?appName=Cluster0

@@ -11,7 +11,7 @@ dotenv.config();
          
           catch (error){
             console.error("ERROR CONNECTING TO MONGODB", error);
-            process.exit(1);
+            // process.exit(1);
 
             }
             

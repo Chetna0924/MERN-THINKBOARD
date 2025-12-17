@@ -1,32 +1,16 @@
-/*import ratelimit from "../config/upstash.js";
-const rateLimiter = async(req,res,next)=>{
-try{
- const {success}=await ratelimit.limit("my-limit-key");
-if(!success){
-    return res.status(429).json({
-        message :"too many request, please try again later"
-    });
-}
-next();
-}
-
-catch(error){
-console.log("rate limit error",error);
-next(error);
-}
-};
-export default rateLimiter;*/
-// backend/src/middleware/ratelimiters.js
 import ratelimit from "../config/upstash.js";
 
 const rateLimiter = async (req, res, next) => {
   try {
-    // use some identifier (IP for now)
-    const identifier = "global-limit";
-    const result= await ratelimit.limit(identifier);
-    console.log("rate limit result",result);
-    
-    const { success, limit, remaining, reset } = result;
+    const identifier =
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.ip ||
+      "anonymous";
+
+    const { success, limit, remaining, reset } =
+      await ratelimit.limit(identifier);
+
+    console.log("RATE LIMIT:", { success, remaining });
 
     if (!success) {
       return res.status(429).json({
@@ -39,10 +23,9 @@ const rateLimiter = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.log("Rate limit error:", error);
-    next(error); // forward to error handler
+    console.error("Rate limit error:", error);
+    next(); // app crash mat hone do
   }
 };
 
 export default rateLimiter;
-
