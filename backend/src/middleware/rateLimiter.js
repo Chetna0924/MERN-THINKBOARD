@@ -2,6 +2,7 @@ import ratelimit from "../config/upstash.js";
 
 const rateLimiter = async (req, res, next) => {
   try {
+    // 🔥 correct client IP
     const identifier =
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.ip ||
@@ -10,7 +11,11 @@ const rateLimiter = async (req, res, next) => {
     const { success, limit, remaining, reset } =
       await ratelimit.limit(identifier);
 
-    console.log("RATE LIMIT:", { success, remaining });
+    console.log("RATE LIMIT:", {
+      ip: identifier,
+      success,
+      remaining,
+    });
 
     if (!success) {
       return res.status(429).json({
@@ -24,7 +29,11 @@ const rateLimiter = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Rate limit error:", error);
-    next(); // app crash mat hone do
+
+    // ❌ DO NOT allow request when limiter fails
+    return res.status(429).json({
+      message: "Rate limit service unavailable",
+    });
   }
 };
 

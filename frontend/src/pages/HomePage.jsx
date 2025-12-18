@@ -1,33 +1,64 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import RateLimitedUi from "../components/RateLimitedUi";
-import axios from "axios";
+import RateLimitedUI from "../components/RateLimitedUI";
+import api from "../lib/axios";
+import toast from "react-hot-toast";
 
 const HomePage = () => {
+  const [isRateLimited, setIsRateLimited] = useState(false);
   const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let retryTimer;
+
     const fetchNotes = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5001/api/notes"
-        );
+        const res = await api.get("/notes");
         setNotes(res.data);
-        console.log(res.data);
+        setIsRateLimited(false);
       } catch (error) {
-        console.log("error fetching notes");
+        if (error.response?.status === 429) {
+          setIsRateLimited(true);
+
+          // 🔁 retry after 5 seconds
+          retryTimer = setTimeout(fetchNotes, 5000);
+        } else {
+          toast.error("Failed to load notes");
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchNotes();
+
+    return () => clearTimeout(retryTimer);
   }, []);
 
   return (
     <div className="min-h-screen">
       <Navbar />
-      <RateLimitedUi />
+
+      {isRateLimited && <RateLimitedUI />}
+
+      <div className="max-w-7xl mx-auto p-4 mt-6">
+        {loading && (
+          <div className="text-center text-primary py-10">
+            Loading notes...
+          </div>
+        )}
+        {notes.length>0 && !isRateLimited && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-6">
+            {notes.map((note) => (
+              <NoteCard key={note_id} note={note} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 export default HomePage;
+ 
