@@ -1,16 +1,48 @@
 import express from "express";
-import {
-  getallnotes,
-  createnotes,
-  updatenotes,
-  deletenotes,
-} from "../controller/notescontroller.js";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
 
-const router = express.Router();
+import notesroute from "./routes/notesroute.js";
+import { connectDB } from "./config/db.js";
+import rateLimiter from "./middleware/rateLimiter.js";
 
-router.get("/", getallnotes);
-router.post("/", createnotes);
-router.put("/:id", updatenotes);
-router.delete("/:id", deletenotes);
+dotenv.config();
 
-export default router;
+const app = express();
+const PORT = process.env.PORT || 5001;
+const __dirname = path.resolve();
+
+// middleware
+if (process.env.NODE_ENV !== "production") {
+  app.use(
+    cors({
+      origin: "http://localhost:5173",
+    })
+  );
+}
+app.use(express.json()); // this middleware will parse JSON bodies: req.body
+app.use(rateLimiter);
+
+// our simple custom middleware
+// app.use((req, res, next) => {
+//   console.log(`Req method is ${req.method} & Req URL is ${req.url}`);
+//   next();
+// });
+
+app.use("/api/notes", notesroute);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log("Server started on PORT:", PORT);
+  });
+});
+
