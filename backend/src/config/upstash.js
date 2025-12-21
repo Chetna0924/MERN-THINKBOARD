@@ -1,15 +1,24 @@
-import { Ratelimit } from "@upstash/ratelimit";
+import {Ratelimit} from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import dotenv from "dotenv";
+import rateLimiter from "../middleware/rateLimiter";
+dotenv.config();
+export const redis= Redis.fromEnv(); 
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+const ratelimit=new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(2000,"10 s"),
+    analytics:true,
+    prefix:"rate-limit",
 });
+const rateLimiter = async (req, res, next) => {
+  const identifier = req.ip || "anonymous";
+  const { success } = await ratelimit.limit(identifier);
 
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(2000, "10 s"), // dev: 3 req / 10 sec
-  analytics: true,
-});
+  if (!success) {
+    return res.status(429).json({ message: "Rate limit exceeded" });
+  }
 
-export default ratelimit;
+  next();
+};
+export default rateLimiter;
