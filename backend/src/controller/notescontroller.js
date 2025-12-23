@@ -1,26 +1,34 @@
-export const getNotes = async (req, res) => {
-  res.status(200).json([]);
-};
 
-export const createNote = async (req, res) => {
-  const { title, content } = req.body;
-
-  if (!title || !content) {
-    return res.status(400).json({
-      message: "Title and content required",
-    });
+export const getallnotes = async (_req, res) => {
+  try {
+    const notes = await note.find({});
+    res.status(200).json(notes);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch notes" });
   }
-
-  res.status(201).json({
-    message: "Note created",
-    note: { title, content },
-  });
 };
 
-export const updateNote = async (req, res) => {
-  res.json({ message: "Note updated" });
+export const createnotes = async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    res.status(201).json({ title, content });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create note" });
+  }
 };
 
-export const deleteNote = async (req, res) => {
-  res.json({ message: "Note deleted" });
+export const updatenotes = async (req, res) => {
+  try {
+    res.status(200).json({ message: "Note updated" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update note" });
+  }
+};
+
+export const deletenotes = async (req, res) => {
+  try {
+    res.status(200).json({ message: "Note deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete note" });
+  }
 };
