@@ -13,7 +13,7 @@ const NoteDetailPage = () => {
   console.log(id);
 
   useEffect(() => {
-    if (!id) return; // ⛔ safety guard
+    if (!id) return; //  safety guard
 
     const fetchNote = async () => {
       try {
@@ -61,7 +61,7 @@ const NoteDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // 🔹 Fetch note
+  //  Fetch note
   useEffect(() => {
     const fetchNote = async () => {
       try {
@@ -78,7 +78,7 @@ const NoteDetailPage = () => {
     if (id) fetchNote();
   }, [id]);
 
-  // 🔹 Update note
+  //  Update note
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -91,8 +91,8 @@ const NoteDetailPage = () => {
       setSaving(false);
     }
   };
-
-  // 🔹 Delete note
+//delete note
+  
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
 
@@ -118,7 +118,7 @@ const NoteDetailPage = () => {
     <div className="min-h-screen bg-base-200">
       <div className="container mx-auto px-4 py-8">
 
-        {/* 🔹 Top actions */}
+        {}
         <div className="flex items-center justify-between mb-6">
           <Link to="/" className="btn btn-ghost">
             <ArrowLeftIcon className="h-5 w-5" />
@@ -145,11 +145,11 @@ const NoteDetailPage = () => {
           </div>
         </div>
 
-        {/* 🔹 Card */}
+        {}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
 
-            {/* Title */}
+            {}
             <div className="form-control mb-4">
               <label className="label">
                 <span className="label-text">Title</span>
@@ -165,7 +165,7 @@ const NoteDetailPage = () => {
               />
             </div>
 
-            {/* Content */}
+            {}
             <div className="form-control mb-4">
               <label className="label">
                 <span className="label-text">Content</span>
