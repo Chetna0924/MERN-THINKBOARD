@@ -11,6 +11,20 @@ export const getallnotes = async (_req, res) => {
     res.status(500).json({ message: "Failed to fetch notes" });
   }
 };
+export const getNoteById = async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+
+    if (!note) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+
+    res.status(200).json(note);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 /* ✅ CREATE NOTE */
 export const createnotes = async (req, res) => {

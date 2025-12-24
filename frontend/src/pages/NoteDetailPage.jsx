@@ -1,9 +1,191 @@
-
+/*import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import api from "../lib/axios";
 
 const NoteDetailPage = () => {
+  const [note, setNote] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [savings, setSavings] = useState(false);
+
+  const navigate = useNavigate();
+  const { id } = useParams();
+  console.log(id);
+
+  useEffect(() => {
+    if (!id) return; // ⛔ safety guard
+
+    const fetchNote = async () => {
+      try {
+        const res = await api.get(`/api/notes/${id}`);
+        setNote(res.data);
+      } catch (error) {
+        console.log("Error in fetching note", error);
+        toast.error("Failed to fetch the note");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNote();
+  }, [id]);
+
+  console.log("Fetched note:", note);
+
+  if (loading) return <div>Loading...</div>;
+  if (!note) return <div>Note not found</div>;
+
   return (
-    <div>NoteDetailPage</div>
-  )
+    <div>
+      <h2>{note.title}</h2>
+      <p>{note.content}</p>
+    </div>
+  );
+};
+
+export default NoteDetailPage;*/
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { ArrowLeftIcon, Trash2Icon, SaveIcon } from "lucide-react";
+import api from "../lib/axios";
+import toast from "react-hot-toast";
+
+const NoteDetailPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [note, setNote] = useState({
+    title: "",
+    content: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // 🔹 Fetch note
+  useEffect(() => {
+    const fetchNote = async () => {
+      try {
+        const res = await api.get(`/api/notes/${id}`);
+        setNote(res.data);
+      } catch (error) {
+        console.log("Error fetching note", error);
+        toast.error("Failed to fetch note");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchNote();
+  }, [id]);
+
+  // 🔹 Update note
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await api.put(`/api/notes/${id}`, note);
+      toast.success("Note updated successfully");
+    } catch (error) {
+      console.log("Error updating note", error);
+      toast.error("Failed to update note");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 🔹 Delete note
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this note?")) return;
+
+    try {
+      await api.delete(`/api/notes/${id}`);
+      toast.success("Note deleted successfully");
+      navigate("/");
+    } catch (error) {
+      console.log("Error deleting note", error);
+      toast.error("Failed to delete note");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-base-200">
+      <div className="container mx-auto px-4 py-8">
+
+        {/* 🔹 Top actions */}
+        <div className="flex items-center justify-between mb-6">
+          <Link to="/" className="btn btn-ghost">
+            <ArrowLeftIcon className="h-5 w-5" />
+            Back to Notes
+          </Link>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              className="btn btn-success btn-outline"
+              disabled={saving}
+            >
+              <SaveIcon className="h-5 w-5" />
+              {saving ? "Saving..." : "Save"}
+            </button>
+
+            <button
+              onClick={handleDelete}
+              className="btn btn-error btn-outline"
+            >
+              <Trash2Icon className="h-5 w-5" />
+              Delete
+            </button>
+          </div>
+        </div>
+
+        {/* 🔹 Card */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+
+            {/* Title */}
+            <div className="form-control mb-4">
+              <label className="label">
+                <span className="label-text">Title</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Note title"
+                className="input input-bordered"
+                value={note.title}
+                onChange={(e) =>
+                  setNote({ ...note, title: e.target.value })
+                }
+              />
+            </div>
+
+            {/* Content */}
+            <div className="form-control mb-4">
+              <label className="label">
+                <span className="label-text">Content</span>
+              </label>
+              <textarea
+                placeholder="Write your note here..."
+                className="textarea textarea-bordered h-32"
+                value={note.content}
+                onChange={(e) =>
+                  setNote({ ...note, content: e.target.value })
+                }
+              />
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 };
 
 export default NoteDetailPage;
