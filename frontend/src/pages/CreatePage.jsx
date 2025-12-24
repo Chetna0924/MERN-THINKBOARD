@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CreatePage = () => {
-  const [title,setTitle] = useState("");
-  const [content,setContent] = usestate("");
-  const [loading,setLoading] = usestate(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [loading ,setLoading] = useState(false);
 
   const handleSubmit = ()=>{}
 
@@ -13,10 +15,10 @@ const CreatePage = () => {
 
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
-            <link to ={"/"} className="btn btn-ghost mb-6" > 
-            <ArrowLeftIcon className = "size-5" />
+            <Link to ={"/"} className="btn btn-ghost mb-6" > 
+            <ArrowLeft className = "size-5" />
             back to nNotes
-            </link>
+            </Link>
             <div className="card bg-base-100 w-full max-w-xl mt-20">
               <div className="card-body">
                 <h2 className="card-title text-2xl mb-4">create New Notes</h2>
