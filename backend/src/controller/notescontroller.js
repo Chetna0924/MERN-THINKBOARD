@@ -1,4 +1,5 @@
-import Note from "../models/Note.js";
+import Note from "../models/note.js";
+import mongoose from "mongoose";
 
 /* ✅ GET ALL NOTES */
 export const getallnotes = async (_req, res) => {
@@ -54,7 +55,7 @@ export const updatenotes = async (req, res) => {
   }
 };
 
-/* ✅ DELETE NOTE */
+/* ✅ DELETE NOTE 
 export const deletenotes = async (req, res) => {
   try {
     const { id } = req.params;
@@ -69,5 +70,29 @@ export const deletenotes = async (req, res) => {
   } catch (error) {
     console.error("Delete note error:", error);
     res.status(500).json({ message: "Failed to delete note" });
+  }
+};
+*/
+
+
+export const deletenotes = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // ✅ VERY IMPORTANT
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid note id" });
+    }
+
+    const deletedNote = await Note.findByIdAndDelete(id);
+
+    if (!deletedNote) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+
+    return res.status(200).json({ message: "Note deleted successfully" });
+  } catch (error) {
+    console.error("Delete note backend error:", error); // 👈 ADD THIS
+    return res.status(500).json({ message: "Failed to delete note" });
   }
 };
